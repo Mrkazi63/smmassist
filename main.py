@@ -3,7 +3,7 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
 from dotenv import load_dotenv
-from perfectpanel_api import get_order_status
+from rentalpanel_api import get_order_status
 
 load_dotenv()
 
