@@ -18,7 +18,7 @@ async def main():
     logging.basicConfig(level=logging.INFO)
     bot = Bot(BOT_TOKEN, parse_mode=ParseMode.HTML)
     dp = Dispatcher()
-    dp.include_router(refill_router)
+    dp.include_router(refill_router)  # ✅ make sure it's included before polling
     dp.startup.register(on_startup)
 
     # /start handler
