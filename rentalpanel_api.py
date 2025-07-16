@@ -13,7 +13,7 @@ SERVICE_ID = os.getenv("SERVICE_ID", "1")  # Replace "1" with your real service 
 async def get_pending_order():
     payload = {
         "key": PANEL_API_KEY,
-        "action": "getOrder",
+        "action": "getOrders",
         "type": SERVICE_ID
     }
     try:
