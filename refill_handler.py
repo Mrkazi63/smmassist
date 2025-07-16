@@ -1,6 +1,6 @@
 import os
 import httpx
-from aiogram import Router, F
+from aiogram import Router
 from aiogram.types import Message
 from aiogram.filters import Command
 from dotenv import load_dotenv
@@ -20,6 +20,7 @@ async def handle_refill_request(message: Message):
         return
 
     order_id = args[1]
+
     payload = {
         "key": ADMIN_API_KEY,
         "action": "getRefill"
@@ -29,13 +30,13 @@ async def handle_refill_request(message: Message):
         async with httpx.AsyncClient() as client:
             res = await client.post(ADMIN_API_URL, data=payload)
             data = res.json()
+
             if data.get("status") == "success":
                 task_id = data.get("id")
                 await message.reply(f"✅ Refill request sent for Order ID: {order_id} (Task ID: {task_id})")
 
-                # Send to support group
                 forward_text = (
-                    f"📦 *Refill Request*\n"
+                    f"📦 *Refill Request (AUTO)*\n"
                     f"• Order ID: `{order_id}`\n"
                     f"• Task ID: `{task_id}`\n"
                     f"• Link: {data.get('link')}\n"
@@ -45,7 +46,15 @@ async def handle_refill_request(message: Message):
                 await message.bot.send_message(chat_id=SUPPORT_GROUP_ID, text=forward_text, parse_mode="Markdown")
 
             else:
-                await message.reply(f"❌ Refill failed: {data.get('error', 'Unknown error')}")
+                # Refill not found – fallback to manual forward
+                await message.reply(f"⚠️ No active refill task found in panel. Sent for manual check.")
+
+                forward_text = (
+                    f"📦 *Refill Request (MANUAL)*\n"
+                    f"• Order ID: `{order_id}`\n"
+                    f"• Status: No task in panel. Please check manually."
+                )
+                await message.bot.send_message(chat_id=SUPPORT_GROUP_ID, text=forward_text, parse_mode="Markdown")
 
     except Exception as e:
         await message.reply(f"❌ API error: {e}")
