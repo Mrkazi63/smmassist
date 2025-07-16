@@ -20,11 +20,8 @@ async def main():
     bot = Bot(BOT_TOKEN, parse_mode=ParseMode.HTML)
     dp = Dispatcher()
 
-    # Register routers before polling
+    # Register your router first
     dp.include_router(refill_router)
-    print("✅ refill_router registered")
-
-    # Startup event
     dp.startup.register(on_startup)
 
     # /start command
@@ -32,11 +29,11 @@ async def main():
     async def start(m: types.Message):
         await m.answer(
             "👋 Welcome to <b>ElectroSMM Assistant</b>!\n"
-            "Send me any order-related question and I’ll help you out."
+            "Use /refill <order_id> to request a refill."
         )
 
     # /status command
-    @dp.message(lambda msg: msg.text.startswith("/status"))
+    @dp.message(lambda msg: msg.text and msg.text.startswith("/status"))
     async def order_status_handler(m: types.Message):
         parts = m.text.strip().split()
         if len(parts) != 2:
