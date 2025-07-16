@@ -4,18 +4,17 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-PANEL_API_URL = os.getenv("PANEL_API_URL", "https://yourpanel.com/api/v2")  # Change this in .env
+PANEL_API_URL = os.getenv("PANEL_API_URL", "https://yourpanel.com/adminapi/v1")
 PANEL_API_KEY = os.getenv("PANEL_API_KEY")
 
 async def get_order_status(order_id: str):
     payload = {
-        "key": PANEL_API_KEY,
-        "action": "status",
-        "order": order_id
+        "api_key": PANEL_API_KEY,
+        "order_id": order_id
     }
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.post(PANEL_API_URL, data=payload)
+            response = await client.post(f"{PANEL_API_URL}/order-status", json=payload)
             result = response.json()
             print("✅ API Response:", result)
             return result
