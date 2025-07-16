@@ -14,7 +14,7 @@ SUPPORT_GROUP_ID = int(os.getenv("SUPPORT_GROUP_ID"))  # Telegram group ID for m
 
 @router.message(Command("refill"))
 async def handle_refill_request(message: Message):
-    args = message.text.split()
+    args = message.text.strip().split()
     if len(args) != 2:
         await message.reply("❗ Usage: /refill <order_id>")
         return
@@ -23,38 +23,30 @@ async def handle_refill_request(message: Message):
 
     payload = {
         "key": ADMIN_API_KEY,
-        "action": "getRefill"
+        "action": "refill",
+        "order": order_id
     }
 
     try:
         async with httpx.AsyncClient() as client:
             res = await client.post(ADMIN_API_URL, data=payload)
             data = res.json()
+            print("✅ API Response:", data)
 
             if data.get("status") == "success":
-                task_id = data.get("id")
-                await message.reply(f"✅ Refill request sent for Order ID: {order_id} (Task ID: {task_id})")
+                await message.reply(f"✅ Refill request sent for Order ID: {order_id}")
 
+                # Also forward to support group
                 forward_text = (
-                    f"📦 *Refill Request (AUTO)*\n"
+                    f"📦 *Refill Request Sent*\n"
                     f"• Order ID: `{order_id}`\n"
-                    f"• Task ID: `{task_id}`\n"
-                    f"• Link: {data.get('link')}\n"
-                    f"• Quantity: {data.get('quantity')}\n"
-                    f"• Service ID: {data.get('service_id')}"
+                    f"• Status: `success`\n"
+                    f"• Sent: Just now"
                 )
                 await message.bot.send_message(chat_id=SUPPORT_GROUP_ID, text=forward_text, parse_mode="Markdown")
 
             else:
-                # Refill not found – fallback to manual forward
-                await message.reply(f"⚠️ No active refill task found in panel. Sent for manual check.")
-
-                forward_text = (
-                    f"📦 *Refill Request (MANUAL)*\n"
-                    f"• Order ID: `{order_id}`\n"
-                    f"• Status: No task in panel. Please check manually."
-                )
-                await message.bot.send_message(chat_id=SUPPORT_GROUP_ID, text=forward_text, parse_mode="Markdown")
+                await message.reply(f"❌ Refill failed: {data.get('error', 'Unknown error')}")
 
     except Exception as e:
         await message.reply(f"❌ API error: {e}")
