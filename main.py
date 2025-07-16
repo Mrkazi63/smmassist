@@ -18,8 +18,8 @@ async def main():
     logging.basicConfig(level=logging.INFO)
     bot = Bot(BOT_TOKEN, parse_mode=ParseMode.HTML)
     dp = Dispatcher()
-    dp.startup.register(on_startup)
     dp.include_router(refill_router)
+    dp.startup.register(on_startup)
 
     # /start handler
     @dp.message(CommandStart())
