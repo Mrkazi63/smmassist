@@ -4,6 +4,7 @@ from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
 from dotenv import load_dotenv
 from rentalpanel_api import get_order_status
+from refill_handler import router as refill_router
 
 load_dotenv()
 
@@ -18,6 +19,7 @@ async def main():
     bot = Bot(BOT_TOKEN, parse_mode=ParseMode.HTML)
     dp = Dispatcher()
     dp.startup.register(on_startup)
+    dp.include_router(refill_router)
 
     # /start handler
     @dp.message(CommandStart())
