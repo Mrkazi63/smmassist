@@ -8,12 +8,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# ✅ Router must be declared first
 router = Router()
 
 ADMIN_API_URL = os.getenv("PANEL_API_URL")
 ADMIN_API_KEY = os.getenv("PANEL_API_KEY")
-SUPPORT_GROUP_ID = int(os.getenv("SUPPORT_GROUP_ID", "-1001234567890"))  # replace this with real group ID
+SUPPORT_GROUP_ID = int(os.getenv("SUPPORT_GROUP_ID", "-1001234567890"))  # replace with real group ID
 
+# ✅ /refill handler
 @router.message(Command("refill"))
 async def handle_refill_request(message: Message):
     print("🔥 /refill command triggered")
@@ -52,3 +54,9 @@ async def handle_refill_request(message: Message):
     except Exception as e:
         print("❌ Exception occurred:", e)
         await message.reply(f"❌ API error: {e}")
+
+
+# ✅ Fallback to test if router is receiving messages at all
+@router.message()
+async def fallback_logger(message: Message):
+    print(f"📩 Fallback: message received in router: {message.text}")
